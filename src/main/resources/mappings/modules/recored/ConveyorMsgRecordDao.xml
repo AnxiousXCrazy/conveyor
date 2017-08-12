@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.uchoice.conveyor.modules.recored.dao.ConveyorMsgRecordDao">
+    
+	<sql id="conveyorMsgRecordColumns">
+		a.id AS "id",
+		a.msg_type AS "msgType",
+		a.msg_template AS "msgTemplate",
+		a.msg_task AS "msgTask",
+		a.target AS "target",
+		a.title AS "title",
+		a.content AS "content",
+		a.send_time AS "sendTime",
+		a.send_result AS "sendResult",
+		a.create_time AS "createTime"
+	</sql>
+	
+	<sql id="conveyorMsgRecordJoins">
+	</sql>
+    
+	<select id="get" resultType="ConveyorMsgRecord">
+		SELECT 
+			<include refid="conveyorMsgRecordColumns"/>
+		FROM conveyor_msg_record a
+		<include refid="conveyorMsgRecordJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ConveyorMsgRecord">
+		SELECT 
+			<include refid="conveyorMsgRecordColumns"/>
+		FROM conveyor_msg_record a
+		<include refid="conveyorMsgRecordJoins"/>
+		<where>
+			
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="msgType != null and msgType != ''">
+				AND a.msg_type = #{msgType}
+			</if>
+			<if test="msgTemplate != null and msgTemplate != ''">
+				AND a.msg_template = #{msgTemplate}
+			</if>
+			<if test="msgTask != null and msgTask != ''">
+				AND a.msg_task = #{msgTask}
+			</if>
+			<if test="target != null and target != ''">
+				AND a.target = #{target}
+			</if>
+			<if test="title != null and title != ''">
+				AND a.title LIKE 
+					<if test="dbName == 'oracle'">'%'||#{title}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{title}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{title},'%')</if>
+			</if>
+			<if test="sendTimeSt != null">
+				<![CDATA[
+					AND a.send_time >= #{sendTimeSt}
+				]]>
+			</if>
+			<if test="sendTimeEd != null">
+				<![CDATA[
+					AND a.send_time <= #{sendTimeEd}
+				]]>
+			</if>
+			<if test="sendResult != null and sendResult != ''">
+				AND a.send_result = #{sendResult}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ConveyorMsgRecord">
+		SELECT 
+			<include refid="conveyorMsgRecordColumns"/>
+		FROM conveyor_msg_record a
+		<include refid="conveyorMsgRecordJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO conveyor_msg_record(
+			id,
+			msg_type,
+			msg_template,
+			msg_task,
+			target,
+			title,
+			content,
+			send_time,
+			send_result,
+			create_time
+		) VALUES (
+			#{id},
+			#{msgType},
+			#{msgTemplate},
+			#{msgTask},
+			#{target},
+			#{title},
+			#{content},
+			#{sendTime},
+			#{sendResult},
+			#{createTime}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE conveyor_msg_record SET 	
+			msg_type = #{msgType},
+			msg_template = #{msgTemplate},
+			msg_task = #{msgTask},
+			target = #{target},
+			title = #{title},
+			content = #{content},
+			send_time = #{sendTime},
+			send_result = #{sendResult},
+			create_time = #{createTime}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM conveyor_msg_record
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

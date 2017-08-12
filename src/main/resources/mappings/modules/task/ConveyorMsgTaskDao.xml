@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.uchoice.conveyor.modules.task.dao.ConveyorMsgTaskDao">
+    
+	<sql id="conveyorMsgTaskColumns">
+		a.id AS "id",
+		a.rec_name AS "recName",
+		a.rec_email AS "recEmail",
+		a.rec_mobile AS "recMobile",
+		a.msg_template AS "msgTemplate",
+		a.send_type AS "sendType",
+		a.send_status AS "sendStatus",
+		a.task_type AS "taskType",
+		a.send_date_lmt_st AS "sendDateLmtSt",
+		a.send_date_lmt_ed AS "sendDateLmtEd",
+		a.send_time_lmt AS "sendTimeLmt",
+		a.priority AS "priority",
+		a.create_by AS "createBy.id",
+		u13.name AS "createBy.name",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="conveyorMsgTaskJoins">
+		LEFT JOIN sys_user u13 ON u13.id = a.create_by
+		LEFT JOIN sys_user u15 ON u15.id = a.update_by
+	</sql>
+    
+	<select id="get" resultType="ConveyorMsgTask">
+		SELECT 
+			<include refid="conveyorMsgTaskColumns"/>
+		FROM conveyor_msg_task a
+		<include refid="conveyorMsgTaskJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ConveyorMsgTask">
+		SELECT 
+			<include refid="conveyorMsgTaskColumns"/>
+		FROM conveyor_msg_task a
+		<include refid="conveyorMsgTaskJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="recName != null and recName != ''">
+				AND a.rec_name = #{recName}
+			</if>
+			<if test="msgTemplate != null and msgTemplate != ''">
+				AND a.msg_template = #{msgTemplate}
+			</if>
+			<if test="sendTypes != null and sendTypes.length > 0">
+				AND 
+				<foreach collection="sendTypes" item="sendType" index="index"
+		            open="(" close=")" separator="or">
+		             INSTR(a.send_type,#{sendType}) 
+     		    </foreach>
+			</if>
+			<if test="sendStatus != null and sendStatus != ''">
+				AND a.send_status = #{sendStatus}
+			</if>
+			<if test="taskType != null and taskType != ''">
+				AND a.task_type = #{taskType}
+			</if>
+			<if test="createBy != null and createBy.id != null and createBy.id != ''">
+				AND a.create_by = #{createBy.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ConveyorMsgTask">
+		SELECT 
+			<include refid="conveyorMsgTaskColumns"/>
+		FROM conveyor_msg_task a
+		<include refid="conveyorMsgTaskJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO conveyor_msg_task(
+			id,
+			rec_name,
+			rec_email,
+			rec_mobile,
+			msg_template,
+			send_type,
+			send_status,
+			task_type,
+			send_date_lmt_st,
+			send_date_lmt_ed,
+			send_time_lmt,
+			priority,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag
+		) VALUES (
+			#{id},
+			#{recName},
+			#{recEmail},
+			#{recMobile},
+			#{msgTemplate},
+			#{sendType},
+			#{sendStatus},
+			#{taskType},
+			#{sendDateLmtSt},
+			#{sendDateLmtEd},
+			#{sendTimeLmt},
+			#{priority},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE conveyor_msg_task SET 	
+			rec_name = #{recName},
+			rec_email = #{recEmail},
+			rec_mobile = #{recMobile},
+			msg_template = #{msgTemplate},
+			send_type = #{sendType},
+			send_status = #{sendStatus},
+			task_type = #{taskType},
+			send_date_lmt_st = #{sendDateLmtSt},
+			send_date_lmt_ed = #{sendDateLmtEd},
+			send_time_lmt = #{sendTimeLmt},
+			priority = #{priority},
+			create_by = #{createBy.id},
+			create_date = #{createDate},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE conveyor_msg_task SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>
